@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Job Aggregator API
+  description: AI-Powered Job Aggregator and Search Platform
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: v1 API
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        company:
+          type: string
+        location:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, DELETED]
+        jobUrl:
+          type: string
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: OK
+  /jobs/search:
+    get:
+      summary: Search jobs
+      security: []
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: location
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results

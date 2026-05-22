@@ -1,0 +1,98 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Admin {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  role         Role           @default(ADMIN)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  refreshTokens RefreshToken[]
+
+  @@map("admins")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  adminId   String   @map("admin_id")
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model Source {
+  id             String     @id @default(uuid())
+  name           String
+  baseUrl        String     @unique @map("base_url")
+  enabled        Boolean    @default(true)
+  crawlFrequency String     @default("0 0 * * *") @map("crawl_frequency") // cron format
+  lastCrawledAt  DateTime?  @map("last_crawled_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  jobs           Job[]
+  crawlLogs      CrawlLog[]
+
+  @@map("sources")
+}
+
+model Job {
+  id             String                      @id @default(uuid())
+  sourceId       String                      @map("source_id")
+  source         Source                      @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  title          String
+  company        String
+  description    String
+  location       String
+  salaryMin      Float?                      @map("salary_min")
+  salaryMax      Float?                      @map("salary_max")
+  employmentType String?                     @map("employment_type") // e.g. FULL_TIME, PART_TIME, CONTRACT, REMOTE
+  experienceMin  Int?                        @map("experience_min")
+  experienceMax  Int?                        @map("experience_max")
+  skills         Json?                       @map("skills") // string array as json
+  jobUrl         String                      @unique @map("job_url")
+  rawHtml        String?                     @map("raw_html")
+  embedding      Unsupported("vector(1536)")?
+  status         String                      @default("ACTIVE") // ACTIVE, INACTIVE, DELETED
+  createdAt      DateTime                    @default(now()) @map("created_at")
+  updatedAt      DateTime                    @updatedAt @map("updated_at")
+
+  @@map("jobs")
+}
+
+model CrawlLog {
+  id         String    @id @default(uuid())
+  sourceId   String    @map("source_id")
+  source     Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  status     String    // SUCCESS, FAILED, RUNNING
+  totalFound Int       @default(0) @map("total_found")
+  totalSaved Int       @default(0) @map("total_saved")
+  startedAt  DateTime  @default(now()) @map("started_at")
+  finishedAt DateTime? @map("finished_at")
+
+  @@map("crawl_logs")
+}
+
+model SearchLog {
+  id          String   @id @default(uuid())
+  query       String
+  resultCount Int      @map("result_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("search_logs")
+}
