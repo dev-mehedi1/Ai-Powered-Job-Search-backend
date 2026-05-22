@@ -81,7 +81,8 @@ export function extractSkills(description: string): string[] {
   ];
   const found: string[] = [];
   for (const skill of commonSkills) {
-    if (new RegExp(`\\b${skill}\\b`, 'i').test(description)) found.push(skill);
+    const escapedSkill = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`\\b${escapedSkill}\\b`, 'i').test(description)) found.push(skill);
   }
   return [...new Set(found)];
 }

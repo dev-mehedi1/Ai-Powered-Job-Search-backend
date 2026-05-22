@@ -18,6 +18,7 @@ function mockExtractJob(html: string, url: string): Partial<RawJobData> {
     title: titleMatch?.[1]?.trim() || 'Software Engineer',
     company: companyMatch?.[1]?.trim() || 'Unknown Company',
     location: locationMatch?.[1]?.trim() || 'Remote',
+    description: 'This is a mocked job description generated because no OpenAI API key was provided. The job requirements, responsibilities, and other details would normally be extracted here from the raw HTML of the job posting using a language model.',
     jobUrl: url,
   };
 }
