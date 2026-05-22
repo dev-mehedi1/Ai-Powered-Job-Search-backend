@@ -1,3 +1,5 @@
+
+.env
 /node_modules
 /dist
 /build
@@ -13,5 +15,3 @@
 /test-coverage
 /test-logs
 /temp_pgvector
-.env
-.env.example
