@@ -12,3 +12,5 @@
 /test-reports
 /test-coverage
 /test-logs
+/temp_pgvector
+.env
